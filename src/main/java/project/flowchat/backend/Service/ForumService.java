@@ -158,7 +158,7 @@ public class ForumService {
     }
 
     /**
-     * add a new record to FORUM.Post
+     * add a new record to Post
      * @param userId userId Integer
      * @param title title string
      * @param content content string

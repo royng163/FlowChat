@@ -3,7 +3,7 @@ package project.flowchat.backend.Repository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.NativeQuery;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import project.flowchat.backend.Model.UserProfileModel;
 
@@ -18,7 +18,7 @@ public interface UserProfileRepository extends JpaRepository<UserProfileModel, I
      * @param userId userId Integer
      * @return avatarId or null
      */
-    @NativeQuery("SELECT avatar_id FROM PROFILE.User_Profile WHERE user_id = ?1")
+    @Query(value = "SELECT avatar_id FROM User_Profile WHERE user_id = ?1", nativeQuery = true)
     Integer findAvatarIdByUserId(Integer userId);
 
     /**
@@ -27,27 +27,27 @@ public interface UserProfileRepository extends JpaRepository<UserProfileModel, I
      * @param userIdTo userIdTo Integer
      * @return userIdFrom Integer if a record is found, otherwise null
      */
-    @NativeQuery("SELECT user_id_from FROM PROFILE.Follow WHERE user_id_from = ?1 AND user_id_to = ?2")
+    @Query(value = "SELECT user_id_from FROM Follow WHERE user_id_from = ?1 AND user_id_to = ?2", nativeQuery = true)
     Integer checkIfUserFollowed(Integer userIdFrom, Integer userIdTo);
 
     /**
-     * Add a record to the PROFILE.Follow table
+     * Add a record to the Follow table
      * @param userIdFrom userIdFrom Integer
      * @param userIdTo userIdTo Integer
      */
     @Modifying
     @Transactional
-    @NativeQuery("INSERT INTO PROFILE.Follow (user_id_from, user_id_to) VALUES (?1, ?2)")
+    @Query(value = "INSERT INTO Follow (user_id_from, user_id_to) VALUES (?1, ?2)", nativeQuery = true)
     void followUser(Integer userIdFrom, Integer userIdTo);
 
     /**
-     * Delete a record from the PROFILE.Follow table
+     * Delete a record from the Follow table
      * @param userIdFrom userIdFrom Integer
      * @param userIdTo userIdTo Integer
      */
     @Modifying
     @Transactional
-    @NativeQuery("DELETE FROM PROFILE.Follow WHERE user_id_from = ?1 AND user_id_to = ?2")
+    @Query(value = "DELETE FROM Follow WHERE user_id_from = ?1 AND user_id_to = ?2", nativeQuery = true)
     void unfollowUser(Integer userIdFrom, Integer userIdTo);
 
     /**
@@ -56,27 +56,27 @@ public interface UserProfileRepository extends JpaRepository<UserProfileModel, I
      * @param userIdTo userIdTo Integer
      * @return userIdFrom Integer if a record is found, otherwise null
      */
-    @NativeQuery("SELECT user_id_from FROM PROFILE.Block WHERE user_id_from = ?1 AND user_id_to = ?2")
+    @Query(value = "SELECT user_id_from FROM Block WHERE user_id_from = ?1 AND user_id_to = ?2", nativeQuery = true)
     Integer checkIfUserBlocked(Integer userIdFrom, Integer userIdTo);
 
     /**
-     * Add a record to the PROFILE.Block table
+     * Add a record to the Block table
      * @param userIdFrom userIdFrom Integer
      * @param userIdTo userIdTo Integer
      */
     @Modifying
     @Transactional
-    @NativeQuery("INSERT INTO PROFILE.Block (user_id_from, user_id_to) VALUES (?1, ?2)")
+    @Query(value = "INSERT INTO Block (user_id_from, user_id_to) VALUES (?1, ?2)", nativeQuery = true)
     void blockUser(Integer userIdFrom, Integer userIdTo);
 
     /**
-     * Delete a record from the PROFILE.Block table
+     * Delete a record from the Block table
      * @param userIdFrom userIdFrom Integer
      * @param userIdTo userIdTo Integer
      */
     @Modifying
     @Transactional
-    @NativeQuery("DELETE FROM PROFILE.Block WHERE user_id_from = ?1 AND user_id_to = ?2")
+    @Query(value = "DELETE FROM Block WHERE user_id_from = ?1 AND user_id_to = ?2", nativeQuery = true)
     void unblockUser(Integer userIdFrom, Integer userIdTo);
 
     /**
@@ -84,7 +84,7 @@ public interface UserProfileRepository extends JpaRepository<UserProfileModel, I
      * @param userId userId Integer
      * @return UserProfileModel
      */
-    @NativeQuery("SELECT * FROM PROFILE.User_Profile WHERE user_id = ?1")
+    @Query(value = "SELECT * FROM User_Profile WHERE user_id = ?1", nativeQuery = true)
     UserProfileModel findProfileByUserId(Integer userId);
 
     /**
@@ -92,7 +92,7 @@ public interface UserProfileRepository extends JpaRepository<UserProfileModel, I
      * @param userId userId Integer
      * @return number of followings of a user
      */
-    @NativeQuery("SELECT COUNT(*) FROM PROFILE.Follow WHERE user_id_from = ?1")
+    @Query(value = "SELECT COUNT(*) FROM Follow WHERE user_id_from = ?1", nativeQuery = true)
     Integer countFollowingByUserId(Integer userId);
 
     /**
@@ -100,7 +100,7 @@ public interface UserProfileRepository extends JpaRepository<UserProfileModel, I
      * @param userId userId Integer
      * @return number of followers of a user
      */
-    @NativeQuery("SELECT COUNT(*) FROM PROFILE.Follow WHERE user_id_to = ?1")
+    @Query(value = "SELECT COUNT(*) FROM Follow WHERE user_id_to = ?1", nativeQuery = true)
     Integer countFollowerByUserId(Integer userId);
 
     /**
@@ -110,13 +110,14 @@ public interface UserProfileRepository extends JpaRepository<UserProfileModel, I
      * @param userNum required number of user profiles
      * @return a list of UserProfileModel
      */
-    @NativeQuery(   "SELECT TOP (?3) UP.user_id, UP.username, UP.description, UP.avatar_id, UP.updated_at\n" +
-                    "FROM PROFILE.User_Profile UP\n" +
-                    "JOIN PROFILE.Follow F\n" +
-                    "ON UP.user_id = F.user_id_to\n" +
-                    "WHERE user_id_from = ?1\n" +
-                    "AND user_id NOT IN ?2\n" +
-                    "ORDER BY username ASC")
+    @Query(value =   "SELECT UP.user_id, UP.username, UP.description, UP.avatar_id, UP.updated_at\n" +
+            "FROM User_Profile UP\n" +
+            "JOIN Follow F\n" +
+            "ON UP.user_id = F.user_id_to\n" +
+            "WHERE user_id_from = ?1\n" +
+            "AND user_id NOT IN ?2\n" +
+            "ORDER BY username ASC\n" +
+            "LIMIT ?3", nativeQuery = true)
     List<UserProfileModel> findFollowingListByUserId(Integer userId, List<Integer> excludingUserIdList, Integer userNum);
 
     /**
@@ -126,13 +127,14 @@ public interface UserProfileRepository extends JpaRepository<UserProfileModel, I
      * @param userNum required number of user profiles
      * @return a list of UserProfileModel
      */
-    @NativeQuery(   "SELECT TOP (?3) UP.user_id, UP.username, UP.description, UP.avatar_id, UP.updated_at\n" +
-                    "FROM PROFILE.User_Profile UP\n" +
-                    "JOIN PROFILE.Follow F\n" +
-                    "ON UP.user_id = F.user_id_from\n" +
-                    "WHERE user_id_to = ?1\n" +
-                    "AND user_id NOT IN ?2\n" +
-                    "ORDER BY username ASC")
+    @Query(value =   "SELECT UP.user_id, UP.username, UP.description, UP.avatar_id, UP.updated_at\n" +
+            "FROM User_Profile UP\n" +
+            "JOIN Follow F\n" +
+            "ON UP.user_id = F.user_id_from\n" +
+            "WHERE user_id_to = ?1\n" +
+            "AND user_id NOT IN ?2\n" +
+            "ORDER BY username ASC\n" +
+            "LIMIT ?3", nativeQuery = true)
     List<UserProfileModel> findFollowerListByUserId(Integer userId, List<Integer> excludingUserIdList, Integer userNum);
 
     /**
@@ -142,13 +144,14 @@ public interface UserProfileRepository extends JpaRepository<UserProfileModel, I
      * @param userNum required number of user profiles
      * @return a list of UserProfileModel
      */
-    @NativeQuery(   "SELECT TOP (?3) UP.user_id, UP.username, UP.description, UP.avatar_id, UP.updated_at\n" +
-                    "FROM PROFILE.User_Profile UP\n" +
-                    "JOIN PROFILE.Block B\n" +
-                    "ON UP.user_id = B.user_id_to\n" +
-                    "WHERE user_id_from = ?1\n" +
-                    "AND user_id NOT IN ?2\n" +
-                    "ORDER BY username ASC")
+    @Query(value =   "SELECT UP.user_id, UP.username, UP.description, UP.avatar_id, UP.updated_at\n" +
+            "FROM User_Profile UP\n" +
+            "JOIN Block B\n" +
+            "ON UP.user_id = B.user_id_to\n" +
+            "WHERE user_id_from = ?1\n" +
+            "AND user_id NOT IN ?2\n" +
+            "ORDER BY username ASC\n" +
+            "LIMIT ?3", nativeQuery = true)
     List<UserProfileModel> findBlockingListByUserId(Integer userId, List<Integer> excludingUserIdList, Integer userNum);
 
     /**
@@ -158,13 +161,14 @@ public interface UserProfileRepository extends JpaRepository<UserProfileModel, I
      * @param searchNum required number of queries
      * @return a lists of UserProfileModel
      */
-    @NativeQuery(   "SELECT TOP (?3) UP.user_id, UP.username, UP.description, UP.avatar_id, UP.updated_at\n" +
-                    "FROM PROFILE.User_Profile UP\n" +
-                    "JOIN ACCOUNT.User_Account UA\n" +
-                    "ON UP.user_id = UA.user_id\n" +
-                    "WHERE UA.is_active = 1\n" +
-                    "AND UA.username LIKE ?1\n" +
-                    "AND UP.user_id NOT IN ?2\n" +
-                    "ORDER BY NEWID()")
+    @Query(value =   "SELECT UP.user_id, UP.username, UP.description, UP.avatar_id, UP.updated_at\n" +
+            "FROM User_Profile UP\n" +
+            "JOIN User_Account UA\n" +
+            "ON UP.user_id = UA.user_id\n" +
+            "WHERE UA.is_active = 1\n" +
+            "AND UA.username LIKE ?1\n" +
+            "AND UP.user_id NOT IN ?2\n" +
+            "ORDER BY RAND()\n" +
+            "LIMIT ?3", nativeQuery = true)
     List<UserProfileModel> findSearchListByKeyword(String keyword, List<Integer> excludingUserIdList, Integer searchNum);
 }

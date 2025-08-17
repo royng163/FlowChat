@@ -12,13 +12,27 @@ import java.time.ZonedDateTime;
 
 @Data
 @Entity
-@Table(schema = "PROFILE", name = "UserProfile")
+@Table(name = "User_Profile")
 public class UserProfileModel {
     @Id
+    @Column(name = "user_id")
     private Integer userId;
 
+    @Column(name = "username")
     private String username;
+
+    @Column(name = "description")
     private String description;
+
+    @Column(name = "avatar")
     private Integer avatarId;
-    private ZonedDateTime updatedAt;
+
+    @Column(name = "following_setting")
+    private String followingSetting;
+
+    @Column(name = "is_posting_visible")
+    private Boolean isPostingVisible;
+
+    @Column(name = "last_update")
+    private ZonedDateTime UpdatedAt;
 }

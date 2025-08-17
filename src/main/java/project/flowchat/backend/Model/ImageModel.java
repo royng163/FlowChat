@@ -10,16 +10,20 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Entity
-@Table(schema = "IMAGE", name = "ImageData")
+@Table(name = "Image_Data")
 public class ImageModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "image_id")
     private Integer imageId;
 
+    @Column(name = "image_name")
     private String imageName;
 
     @Lob
+    @Column(name = "image_data")
     private byte[] imageData;
 
+    @Column(name = "image_format")
     private String imageFormat;
 }
